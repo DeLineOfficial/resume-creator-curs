@@ -50,8 +50,8 @@ jobs:
             host: ${{ secrets.VDS_HOST }}
             username: ${{ secrets.VDS_USER }}
             key: ${{ secrets.VDS_SSH_KEY }}
-            source: "docker-compose.prod.yaml,init.sql"
-            target: "/opt/carsharing"
+            source: "docker-compose.yaml"
+            target: "/opt/resume-creator"
 
         - name: Deploy
           uses: appleboy/ssh-action@v1.2.0
@@ -60,9 +60,9 @@ jobs:
             username: ${{ secrets.VDS_USER }}
             key: ${{ secrets.VDS_SSH_KEY }}
             script: |
-              cd /opt/carsharing
-              echo "${{ secrets.GHCR_READ_TOKEN }}" | docker login ghcr.io -u dimavalencko --password-stdin
-              docker compose -f docker-compose.prod.yaml pull
-              docker compose -f docker-compose.prod.yaml up -d --force-recreate
+              cd /opt/resume-creator
+              echo "${{ secrets.GHCR_READ_TOKEN }}" | docker login ghcr.io -u DeLineOfficial --password-stdin
+              docker compose -f docker-compose.yaml pull
+              docker compose -f docker-compose.yaml up -d --force-recreate
               docker image prune -f
               echo "✅ Deploy completed"
