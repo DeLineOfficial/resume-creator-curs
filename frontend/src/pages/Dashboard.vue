@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Your Resumes</h2>
+    <h2>МАИ РЕЗЮМЕ</h2>
     <div v-if="loading">Loading...</div>
     <ul>
       <li v-for="r in resumes" :key="r.id">
