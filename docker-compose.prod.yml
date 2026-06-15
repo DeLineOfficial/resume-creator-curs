@@ -1,0 +1,15 @@
+services:
+  backend:
+    image: ghcr.io/delineofficial/resume-creator-curs-backend:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+  frontend:
+    image: ghcr.io/delineofficial/resume-creator-curs-frontend:latest
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
