@@ -4,8 +4,8 @@
 
 Структура:
 
-- `frontend/` — SPA (Vite + React)
-- `backend/` — API (Express)
+- `frontend/` — SPA (Vite + Vue)
+- `backend/` — API (Nest)
 - `.github/workflows/` — шаблоны CI
 - `docker-compose.yml` — локальная сборка сервисов
 
