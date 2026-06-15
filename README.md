@@ -1,8 +1,6 @@
 # Monorepo: frontend + backend
 
-Пример структуры монорепозитория с `frontend` и `backend`, подготовленный для дальнейшей настройки CI/CD и Docker.
-
-Структура:
+Структура проекта:
 
 - `frontend/` — SPA (Vite + Vue)
 - `backend/` — API (Nest)
