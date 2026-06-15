@@ -1,15 +1,26 @@
 <template>
-  <div>
-    <h2>Login</h2>
-    <form @submit.prevent="onSubmit">
-      <div><input v-model="email" placeholder="Email" /></div>
-      <div><input v-model="password" type="password" placeholder="Password" /></div>
-      <button>Login</button>
-    </form>
-    <p v-if="error" style="color:red">{{ error }}</p>
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="card-title mb-4">Войти</h2>
+          <form @submit.prevent="onSubmit">
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input v-model="email" type="email" class="form-control" placeholder="example@mail.com" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Пароль</label>
+              <input v-model="password" type="password" class="form-control" placeholder="Password" required />
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Login</button>
+          </form>
+          <div v-if="error" class="alert alert-danger mt-3">{{ error }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { ref } from 'vue'

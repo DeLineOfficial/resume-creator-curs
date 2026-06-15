@@ -1,11 +1,12 @@
 import { ref, computed } from 'vue'
 import api from '../services/api'
 
+const token = ref<string | null>(localStorage.getItem('token'))
 const user = ref<any>(null)
 
-function parseJwt(token: string) {
+function parseJwt(tokenValue: string) {
   try {
-    const base = token.split('.')[1]
+    const base = tokenValue.split('.')[1]
     const json = atob(base.replace(/-/g, '+').replace(/_/g, '/'))
     return JSON.parse(json)
   } catch (e) {
@@ -13,34 +14,29 @@ function parseJwt(token: string) {
   }
 }
 
-export function useAuth() {
-  const token = ref<string | null>(localStorage.getItem('token'))
+if (token.value) {
+  try {
+    user.value = parseJwt(token.value)
+    api.defaults.headers.common.Authorization = `Bearer ${token.value}`
+  } catch {
+    user.value = null
+  }
+}
 
-  // initialize user from existing token (persist login across reloads)
-  if (token.value) {
-    try {
-      user.value = parseJwt(token.value)
-      // set default header for API
-      api.defaults.headers.common.Authorization = `Bearer ${token.value}`
-    } catch (e) {
-      // ignore
+window.addEventListener('storage', (ev) => {
+  if (ev.key === 'token') {
+    const t = ev.newValue
+    if (t) {
+      user.value = parseJwt(t)
+      api.defaults.headers.common.Authorization = `Bearer ${t}`
+    } else {
+      user.value = null
+      delete api.defaults.headers.common.Authorization
     }
   }
+})
 
-  // keep user in sync if token is changed in other tabs or by interceptor
-  window.addEventListener('storage', (ev) => {
-    if (ev.key === 'token') {
-      const t = ev.newValue
-      if (t) {
-        user.value = parseJwt(t)
-        api.defaults.headers.common.Authorization = `Bearer ${t}`
-      } else {
-        user.value = null
-        delete api.defaults.headers.common.Authorization
-      }
-    }
-  })
-
+export function useAuth() {
   function saveToken(t: string) {
     token.value = t
     localStorage.setItem('token', t)
