@@ -50,7 +50,7 @@ jobs:
             host: ${{ secrets.VDS_HOST }}
             username: ${{ secrets.VDS_USER }}
             key: ${{ secrets.VDS_SSH_KEY }}
-            source: "docker-compose.yaml"
+            source: "docker-compose.yml"
             target: "/opt/resume-creator"
 
         - name: Deploy
@@ -62,7 +62,7 @@ jobs:
             script: |
               cd /opt/resume-creator
               echo "${{ secrets.GHCR_READ_TOKEN }}" | docker login ghcr.io -u DeLineOfficial --password-stdin
-              docker compose -f docker-compose.yaml pull
-              docker compose -f docker-compose.yaml up -d --force-recreate
+              docker compose -f docker-compose.yml pull
+              docker compose -f docker-compose.yml up -d --force-recreate
               docker image prune -f
               echo "✅ Deploy completed"
