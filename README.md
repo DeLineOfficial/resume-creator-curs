@@ -8,5 +8,3 @@
 - `backend/` — API (Nest)
 - `.github/workflows/` — шаблоны CI
 - `docker-compose.yml` — локальная сборка сервисов
-
-См. подпапки для инструкций запуска.
