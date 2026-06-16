@@ -1,3 +1,8 @@
+<script setup lang="ts">
+
+
+</script>
+
 <template>
   <div class="text-center">
     <div class="py-5">
@@ -38,5 +43,3 @@
   </div>
 </template>
 
-<script setup lang="ts">
-</script>

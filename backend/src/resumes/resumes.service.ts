@@ -16,4 +16,12 @@ export class ResumesService {
   findByUserId(userId: number) {
     return this.resumeRepo.find({ where: { user: { id: userId } } , relations: ['user']});
   }
+
+  findById(id: number) {
+    return this.resumeRepo.findOne({ where: { id }, relations: ['user'] });
+  }
+
+  delete(id: number) {
+    return this.resumeRepo.delete(id);
+  }
 }
