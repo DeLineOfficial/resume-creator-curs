@@ -15,14 +15,14 @@ function onLogout() {
   <div>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container">
-        <router-link class="navbar-brand" to="/">Resume Creator</router-link>
+        <router-link class="navbar-brand" to="/">Твоё резюме</router-link>
         <div class="d-flex align-items-center gap-2">
-          <router-link class="nav-link text-white" to="/">Home</router-link>
-          <router-link v-if="!isAuthenticated" class="nav-link text-white" to="/login">Login</router-link>
-          <router-link v-if="!isAuthenticated" class="nav-link text-white" to="/register">Register</router-link>
-          <router-link v-if="isAuthenticated" class="nav-link text-white" to="/dashboard">Dashboard</router-link>
-          <router-link v-if="isAuthenticated" class="nav-link text-white" to="/create">Create</router-link>
-          <button v-if="isAuthenticated" class="btn btn-outline-light btn-sm ms-2" type="button" @click="onLogout">Logout</button>
+          <router-link class="nav-link text-white" to="/">Главная</router-link>
+          <router-link v-if="!isAuthenticated" class="nav-link text-white" to="/login">Войти</router-link>
+          <router-link v-if="!isAuthenticated" class="nav-link text-white" to="/register">Регистрация</router-link>
+          <router-link v-if="isAuthenticated" class="nav-link text-white" to="/dashboard">Мои резюме</router-link>
+          <router-link v-if="isAuthenticated" class="nav-link text-white" to="/create">Создать резюме</router-link>
+          <button v-if="isAuthenticated" class="btn btn-outline-light btn-sm ms-2" type="button" @click="onLogout">Выйти</button>
         </div>
       </div>
     </nav>
@@ -33,6 +33,13 @@ function onLogout() {
   </div>
 </template>
 
-<style>
+<style scoped>
 body { font-family: Arial, sans-serif; }
+.navbar-brand {
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transform: skew(-15deg);
+  border-bottom: 3px solid #fff;
+}
 </style>

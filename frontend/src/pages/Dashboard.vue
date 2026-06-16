@@ -1,88 +1,3 @@
-<template>
-  <div>
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h2 class="mb-1">Мои резюме</h2>
-        <p class="text-muted">Ваши резюме доступны только после входа в систему.</p>
-      </div>
-      <router-link class="btn btn-outline-primary" to="/create">Создать резюме</router-link>
-    </div>
-
-    <div v-if="loading" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </div>
-
-    <div v-else>
-      <div v-if="resumes.length === 0" class="alert alert-info">
-        У вас пока нет резюме. Нажмите «Создать резюме», чтобы начать.
-      </div>
-      <div class="row gy-4">
-        <div class="col-lg-12" v-for="r in resumes" :key="r.id">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <div class="row mb-4">
-                <div class="col-md-3 text-center">
-                  <div v-if="r.data.photo" class="mb-3">
-                    <img :src="getPhotoUrl(r.data.photo)" :alt="r.data.fullName" class="img-fluid rounded" style="max-width: 150px; max-height: 200px;" />
-                  </div>
-                  <div v-else class="bg-light rounded p-5 text-muted mb-3">
-                    <div style="font-size: 3rem;">📷</div>
-                  </div>
-                </div>
-                <div class="col-md-9">
-                  <h3 class="mb-1">{{ r.data.fullName }}</h3>
-                  <h5 class="text-primary mb-3">{{ r.data.title }}</h5>
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <small class="text-muted d-block"><strong>Дата рождения:</strong> {{ formatDate(r.data.dateOfBirth) }}</small>
-                      <small class="text-muted d-block"><strong>Резюме создано:</strong> {{ new Date(r.createdAt).toLocaleDateString('ru-RU') }}</small>
-                    </div>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-primary" @click="exportToPdf(r)">
-                      📥 Экспорт в PDF
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" @click="deleteResume(r.id)">
-                      🗑️ Удалить
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mb-4" v-if="r.data.summary">
-                <h6 class="text-uppercase text-muted fw-bold mb-2">О себе</h6>
-                <p>{{ r.data.summary }}</p>
-              </div>
-
-              <div class="mb-4" v-if="r.data.skills && r.data.skills.length > 0">
-                <h6 class="text-uppercase text-muted fw-bold mb-2">Навыки</h6>
-                <div>
-                  <span class="badge bg-secondary me-2 mb-2" v-for="s in r.data.skills" :key="s">{{ s }}</span>
-                </div>
-              </div>
-
-              <div v-if="r.data.experiences && r.data.experiences.length > 0">
-                <h6 class="text-uppercase text-muted fw-bold mb-3">Опыт работы</h6>
-                <div class="experience-list">
-                  <div class="mb-3 border-start ps-3" v-for="(exp, idx) in r.data.experiences" :key="idx">
-                    <h6 class="mb-1">{{ exp.position }}</h6>
-                    <p class="text-muted mb-1">{{ exp.company }}</p>
-                    <small class="text-muted">
-                      {{ formatDate(exp.startDate) }} — {{ formatDate(exp.endDate) }}
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import api from '../services/api'
@@ -144,8 +59,8 @@ function exportToPdf(resume: Resume) {
 
   let html = `
     <div style="display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 2px solid #007bff; padding-bottom: 20px;">
-      <div>
-        ${resume.data.photo ? `<img src="${getPhotoUrl(resume.data.photo)}" style="width: 120px; height: 150px; object-fit: cover; border-radius: 8px;" />` : '<div style="width: 120px; height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px;">📷</div>'}
+      <div style="width: 200px; height: 150px; flex-shrink: 0;">
+        ${resume.data.photo ? `<img src="${getPhotoUrl(resume.data.photo)}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;" />` : '<div style="width: 120px; height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px;">📷</div>'}
       </div>
       <div style="flex: 1;">
         <h1 style="margin: 0; font-size: 24px; color: #333;">${resume.data.fullName}</h1>
@@ -215,3 +130,106 @@ async function deleteResume(id: number) {
 
 onMounted(load)
 </script>
+
+<template>
+  <div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-1">Мои резюме</h2>
+        <p class="text-muted">Ваши резюме доступны только после входа в систему.</p>
+      </div>
+      <router-link class="btn btn-outline-primary" to="/create">Создать резюме</router-link>
+    </div>
+
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div v-else>
+      <div v-if="resumes.length === 0" class="alert alert-info">
+        У вас пока нет резюме. Нажмите «Создать резюме», чтобы начать.
+      </div>
+      <div class="row gy-4">
+        <div class="col-lg-12" v-for="r in resumes" :key="r.id">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="row mb-4">
+                <div class="col-md-3 text-center">
+                  <div v-if="r.data.photo" class="mb-3 resume-image-container">
+                    <img :src="getPhotoUrl(r.data.photo)" :alt="r.data.fullName" class="img-fluid resume-image rounded"/>
+                  </div>
+                  <div v-else class="bg-light rounded p-5 text-muted mb-3">
+                    <div style="font-size: 3rem;">📷</div>
+                  </div>
+                </div>
+                <div class="col-md-9">
+                  <h3 class="mb-1">{{ r.data.fullName }}</h3>
+                  <h5 class="text-primary mb-3">{{ r.data.title }}</h5>
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <small class="text-muted d-block"><strong>Дата рождения:</strong> {{ formatDate(r.data.dateOfBirth) }}</small>
+                      <small class="text-muted d-block"><strong>Резюме создано:</strong> {{ new Date(r.createdAt).toLocaleDateString('ru-RU') }}</small>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-primary" @click="exportToPdf(r)">
+                      📥 Экспорт в PDF
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" @click="deleteResume(r.id)">
+                      🗑️ Удалить
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4" v-if="r.data.summary">
+                <h6 class="text-uppercase text-muted fw-bold mb-2">О себе</h6>
+                <p>{{ r.data.summary }}</p>
+              </div>
+
+              <div class="mb-4" v-if="r.data.skills && r.data.skills.length > 0">
+                <h6 class="text-uppercase text-muted fw-bold mb-2">Навыки</h6>
+                <div>
+                  <span class="badge bg-secondary me-2 mb-2" v-for="s in r.data.skills" :key="s">{{ s }}</span>
+                </div>
+              </div>
+
+              <div v-if="r.data.experiences && r.data.experiences.length > 0">
+                <h6 class="text-uppercase text-muted fw-bold mb-3">Опыт работы</h6>
+                <div class="experience-list">
+                  <div class="mb-3 border-start ps-3" v-for="(exp, idx) in r.data.experiences" :key="idx">
+                    <h6 class="mb-1">{{ exp.position }}</h6>
+                    <p class="text-muted mb-1">{{ exp.company }}</p>
+                    <small class="text-muted">
+                      {{ formatDate(exp.startDate) }} — {{ formatDate(exp.endDate) }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.resume-image-container {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.resume-image {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-position: center;
+  display: flex;
+}
+</style>

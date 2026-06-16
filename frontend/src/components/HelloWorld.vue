@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { useAuth } from '../composables/useAuth'
 
-
+const { isAuthenticated } = useAuth()
 </script>
 
 <template>
@@ -9,8 +10,9 @@
       <h1 class="display-4">Создай резюме быстро и красиво</h1>
       <p class="lead text-muted">Управляй резюме, делись ими и получай лучшие предложения.</p>
       <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
-        <router-link class="btn btn-primary btn-lg" to="/login">Войти</router-link>
-        <router-link class="btn btn-outline-primary btn-lg" to="/register">Зарегистрироваться</router-link>
+        <router-link v-if="!isAuthenticated" class="btn btn-primary btn-lg" to="/login">Войти</router-link>
+        <router-link v-if="!isAuthenticated" class="btn btn-outline-primary btn-lg" to="/register">Зарегистрироваться</router-link>
+        <router-link v-if="isAuthenticated" class="btn btn-primary btn-lg" to="/dashboard">Мои резюме</router-link>
       </div>
     </div>
 
