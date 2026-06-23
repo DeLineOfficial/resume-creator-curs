@@ -13,7 +13,7 @@ import { ResumesModule } from './resumes/resumes.module';
       type: 'sqlite',
       database: 'database.sqlite',
       entities: [User, Resume],
-      synchronize: true,
+      synchronize: false,
     }),
     AuthModule,
     ResumesModule,
