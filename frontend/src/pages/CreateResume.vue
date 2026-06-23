@@ -3,7 +3,7 @@
     <div class="col-lg-8">
       <div class="card shadow-sm">
         <div class="card-body p-4">
-          <h2 class="card-title mb-4">Создать резюме</h2>
+          <h2 class="card-title mb-4">{{ isEditMode ? 'Редактировать резюме' : 'Создать резюме' }}</h2>
           <form @submit.prevent="onSubmit">
             <!-- Фотография -->
             <div class="mb-3">
@@ -96,7 +96,7 @@
               </div>
             </div>
 
-            <button class="btn btn-success w-100" type="submit">Создать</button>
+            <button class="btn btn-success w-100" type="submit">{{ isEditMode ? 'Сохранить' : 'Создать' }}</button>
           </form>
           <div v-if="message" class="alert alert-success mt-3">{{ message }}</div>
         </div>
@@ -106,7 +106,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import api from '../services/api'
 import { useAuth } from '../composables/useAuth'
 
@@ -117,6 +118,8 @@ interface Experience {
   endDate: string
 }
 
+const route = useRoute()
+const router = useRouter()
 const photoInput = ref<HTMLInputElement | null>(null)
 const photoFile = ref<File | null>(null)
 const photoPreview = ref<string | null>(null)
@@ -127,7 +130,9 @@ const summary = ref('')
 const skills = ref('')
 const experiences = ref<Experience[]>([])
 const message = ref<string | null>(null)
+const resumeId = ref<number | null>(null)
 const { getUserId } = useAuth()
+const isEditMode = computed(() => resumeId.value !== null)
 
 function onPhotoSelected(event: Event) {
   const target = event.target as HTMLInputElement
@@ -155,14 +160,40 @@ function removeExperience(idx: number) {
   experiences.value.splice(idx, 1)
 }
 
+async function loadResume() {
+  const id = route.params.id
+  if (!id) return
+
+  const parsedId = Number(id)
+  if (Number.isNaN(parsedId)) return
+
+  resumeId.value = parsedId
+
+  try {
+    const res = await api.get(`/resumes/${parsedId}`)
+    const data = res.data?.data
+    if (!data) return
+
+    fullName.value = data.fullName || ''
+    dateOfBirth.value = data.dateOfBirth || ''
+    title.value = data.title || ''
+    summary.value = data.summary || ''
+    skills.value = Array.isArray(data.skills) ? data.skills.join(', ') : (data.skills || '')
+    experiences.value = Array.isArray(data.experiences) ? data.experiences : []
+    photoPreview.value = data.photo || null
+  } catch (e) {
+    console.error(e)
+  }
+}
+
 async function onSubmit() {
   try {
     const formData = new FormData()
-    
+
     if (photoFile.value) {
       formData.append('photo', photoFile.value)
     }
-    
+
     const resumeData = {
       fullName: fullName.value,
       dateOfBirth: dateOfBirth.value,
@@ -171,15 +202,26 @@ async function onSubmit() {
       skills: skills.value.split(',').map(s => s.trim()).filter(Boolean),
       experiences: experiences.value,
     }
-    
+
     formData.append('data', JSON.stringify(resumeData))
-    
+
+    if (isEditMode.value && resumeId.value !== null) {
+      await api.put(`/resumes/${resumeId.value}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      message.value = 'Резюме обновлено'
+      router.push({ name: 'Dashboard' })
+      return
+    }
+
     await api.post('/resumes', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
-    
+
     message.value = 'Резюме создано'
     photoFile.value = null
     photoPreview.value = null
@@ -194,4 +236,6 @@ async function onSubmit() {
     message.value = e?.response?.data?.message || 'Create failed'
   }
 }
+
+onMounted(loadResume)
 </script>

@@ -13,6 +13,15 @@ export class ResumesService {
     return this.resumeRepo.save(r);
   }
 
+  async update(id: number, data: any) {
+    const resume = await this.resumeRepo.findOne({ where: { id }, relations: ['user'] });
+    if (!resume) {
+      return null;
+    }
+    resume.data = data;
+    return this.resumeRepo.save(resume);
+  }
+
   findByUserId(userId: number) {
     return this.resumeRepo.find({ where: { user: { id: userId } } , relations: ['user']});
   }

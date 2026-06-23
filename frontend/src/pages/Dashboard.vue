@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '../services/api'
 import { useAuth } from '../composables/useAuth'
 import html2pdf from 'html2pdf.js'
@@ -58,9 +59,9 @@ function exportToPdf(resume: Resume) {
   element.style.fontFamily = 'Arial, sans-serif'
 
   let html = `
-    <div style="display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 2px solid #007bff; padding-bottom: 20px;">
-      <div style="width: 200px; height: 150px; flex-shrink: 0;">
-        ${resume.data.photo ? `<img src="${getPhotoUrl(resume.data.photo)}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;" />` : '<div style="width: 120px; height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 8px;">📷</div>'}
+    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+      <div style="width: 150px; height: 150px; flex-shrink: 0;">
+        ${resume.data.photo ? `<div style="width: 150px; height: 150px; border-radius: 8px; background-image: url('${getPhotoUrl(resume.data.photo)}'); background-size: cover; background-position: center;"></div>` : '<div style="width: 150px; height: 150px; border-radius: 8px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 2rem;">📷</div>'}
       </div>
       <div style="flex: 1;">
         <h1 style="margin: 0; font-size: 24px; color: #333;">${resume.data.fullName}</h1>
@@ -117,6 +118,12 @@ function exportToPdf(resume: Resume) {
   html2pdf().set(opt).from(element).save()
 }
 
+const router = useRouter()
+
+function editResume(id: number) {
+  router.push({ name: 'EditResume', params: { id } })
+}
+
 async function deleteResume(id: number) {
   if (confirm('Вы уверены? Это действие необратимо.')) {
     try {
@@ -152,59 +159,56 @@ onMounted(load)
         У вас пока нет резюме. Нажмите «Создать резюме», чтобы начать.
       </div>
       <div class="row gy-4">
-        <div class="col-lg-12" v-for="r in resumes" :key="r.id">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <div class="row mb-4">
-                <div class="col-md-3 text-center">
-                  <div v-if="r.data.photo" class="mb-3 resume-image-container">
-                    <img :src="getPhotoUrl(r.data.photo)" :alt="r.data.fullName" class="img-fluid resume-image rounded"/>
+        <div class="col-12" v-for="r in resumes" :key="r.id">
+          <div class="card shadow-sm resume-card">
+            <div class="card-body position-relative resume-card-body">
+              <div class="resume-card-actions">
+                <button class="btn btn-sm btn-outline-secondary" @click="exportToPdf(r)">
+                  📥 Экспорт
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" @click="editResume(r.id)">
+                  ✏️ Редактировать
+                </button>
+                <button class="btn btn-sm btn-outline-danger" @click="deleteResume(r.id)">
+                  🗑️ Удалить
+                </button>
+              </div>
+
+              <div class="resume-card-main">
+                <div class="resume-image-wrapper">
+                  <div v-if="r.data.photo" class="resume-image-container">
+                    <img :src="getPhotoUrl(r.data.photo)" :alt="r.data.fullName" class="resume-image rounded" />
                   </div>
-                  <div v-else class="bg-light rounded p-5 text-muted mb-3">
-                    <div style="font-size: 3rem;">📷</div>
+                  <div v-else class="resume-image-placeholder">
+                    📷
                   </div>
                 </div>
-                <div class="col-md-9">
-                  <h3 class="mb-1">{{ r.data.fullName }}</h3>
-                  <h5 class="text-primary mb-3">{{ r.data.title }}</h5>
-                  <div class="row mb-3">
-                    <div class="col-md-6">
-                      <small class="text-muted d-block"><strong>Дата рождения:</strong> {{ formatDate(r.data.dateOfBirth) }}</small>
-                      <small class="text-muted d-block"><strong>Резюме создано:</strong> {{ new Date(r.createdAt).toLocaleDateString('ru-RU') }}</small>
+
+                <div class="resume-card-content">
+                  <div class="resume-card-header mb-3">
+                    <h3 class="mb-1">{{ r.data.fullName }}</h3>
+                    <h5 class="text-primary mb-0">{{ r.data.title }}</h5>
+                  </div>
+
+                  <div class="resume-summary mb-3" v-if="r.data.summary">
+                    <p class="mb-0">{{ r.data.summary }}</p>
+                  </div>
+
+                  <div v-if="r.data.skills && r.data.skills.length > 0" class="resume-tags mb-3">
+                    <span class="badge bg-secondary" v-for="s in r.data.skills" :key="s">{{ s }}</span>
+                  </div>
+
+                  <div v-if="r.data.experiences && r.data.experiences.length > 0" class="resume-experience d-flex flex-wrap gap-2 mb-3">
+                    <div class="experience-pill" v-for="(exp, idx) in r.data.experiences" :key="idx">
+                      <div class="fw-bold">{{ exp.position }}</div>
+                      <div class="text-muted small">{{ exp.company }}</div>
+                      <div class="text-muted small">{{ formatDate(exp.startDate) }} — {{ formatDate(exp.endDate) }}</div>
                     </div>
                   </div>
-                  <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-primary" @click="exportToPdf(r)">
-                      📥 Экспорт в PDF
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger" @click="deleteResume(r.id)">
-                      🗑️ Удалить
-                    </button>
-                  </div>
-                </div>
-              </div>
 
-              <div class="mb-4" v-if="r.data.summary">
-                <h6 class="text-uppercase text-muted fw-bold mb-2">О себе</h6>
-                <p>{{ r.data.summary }}</p>
-              </div>
-
-              <div class="mb-4" v-if="r.data.skills && r.data.skills.length > 0">
-                <h6 class="text-uppercase text-muted fw-bold mb-2">Навыки</h6>
-                <div>
-                  <span class="badge bg-secondary me-2 mb-2" v-for="s in r.data.skills" :key="s">{{ s }}</span>
-                </div>
-              </div>
-
-              <div v-if="r.data.experiences && r.data.experiences.length > 0">
-                <h6 class="text-uppercase text-muted fw-bold mb-3">Опыт работы</h6>
-                <div class="experience-list">
-                  <div class="mb-3 border-start ps-3" v-for="(exp, idx) in r.data.experiences" :key="idx">
-                    <h6 class="mb-1">{{ exp.position }}</h6>
-                    <p class="text-muted mb-1">{{ exp.company }}</p>
-                    <small class="text-muted">
-                      {{ formatDate(exp.startDate) }} — {{ formatDate(exp.endDate) }}
-                    </small>
+                  <div class="resume-meta text-muted small mt-auto">
+                    <div><strong>Дата рождения:</strong> {{ formatDate(r.data.dateOfBirth) }}</div>
+                    <div><strong>Создано:</strong> {{ new Date(r.createdAt).toLocaleDateString('ru-RU') }}</div>
                   </div>
                 </div>
               </div>
@@ -217,19 +221,128 @@ onMounted(load)
 </template>
 
 <style scoped>
-.resume-image-container {
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
+.resume-card {
+  border-radius: 18px;
+  min-height: 260px;
+}
+
+.resume-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.resume-card-actions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 1;
+}
+
+.resume-card-actions .btn {
+  min-width: auto;
+  padding: 0.5rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+}
+
+.resume-card-main {
+  display: flex;
+  gap: 1.75rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.resume-image-wrapper {
+  flex: 0 0 220px;
+  display: flex;
+}
+
+.resume-image-container,
+.resume-image-placeholder {
+  width: 220px;
+  height: 220px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  background: #f8f9fa;
 }
+
+.resume-image-placeholder {
+  font-size: 2rem;
+  color: #adb5bd;
+}
+
 .resume-image {
   object-fit: cover;
   width: 100%;
   height: 100%;
   object-position: center;
+}
+
+.resume-card-content {
   display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.resume-card-header h3,
+.resume-card-header h5 {
+  margin: 0;
+}
+
+.resume-summary {
+  color: #495057;
+}
+
+.resume-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.experience-pill {
+  flex: 1 1 220px;
+  min-width: 200px;
+  max-width: 320px;
+  background: #f8f9fa;
+  border-radius: 14px;
+  padding: 0.95rem;
+}
+
+.experience-pill .text-muted {
+  display: block;
+}
+
+.resume-meta {
+  margin-top: auto;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .resume-card-main {
+    flex-direction: column;
+  }
+
+  .resume-image-wrapper {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .resume-image-container,
+  .resume-image-placeholder {
+    width: 100%;
+    height: 200px;
+  }
 }
 </style>
