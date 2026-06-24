@@ -19,5 +19,4 @@
 # Production
 
 HOST: http://161.104.35.58/
-Login: example@mail.ru | Password: example123
 
