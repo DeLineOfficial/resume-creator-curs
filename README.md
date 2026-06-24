@@ -1,8 +1,23 @@
-# Monorepo: frontend + backend
+# Resume Creator 
+
+Веб-приложение для создания резюме. Пользователь может просматривать свои резюме, создавать новые и редактировать существующии.
+Так же поддержана возвожность выгрузки резюме в PDF формате
 
 Структура проекта:
 
 - `frontend/` — SPA (Vite + Vue)
 - `backend/` — API (Nest)
+- `docs/` - Документы для курсовой работы
 - `.github/workflows/` — шаблоны CI
 - `docker-compose.yml` — локальная сборка сервисов
+
+
+# Документы
+
+Пояснительная записка находится в папке /docs
+
+# Production
+
+HOST: http://161.104.35.58/
+Login: example@mail.ru | Password: example123
+
